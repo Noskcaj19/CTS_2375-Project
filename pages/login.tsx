@@ -44,6 +44,7 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   async function handleSubmit(e) {
+    setErrorMsg("");
     e.preventDefault();
 
     const body = {
