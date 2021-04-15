@@ -11,6 +11,7 @@ export const FromDBToRecipe = z.object({
   name: z.string(),
   description: z.string(),
   body: z.string(),
+  tags: z.array(z.string()),
   author_username: z.string(),
   created: z.string().transform((d) => new Date(d)),
 });
@@ -42,6 +43,12 @@ class DB {
     });
 
     this.docClient = DynamoDBDocument.from(client);
+  }
+
+  public async taggedRecipes(tag: string): Promise<DBRecipe[]> {
+    let items = await this.getRecipes();
+
+    return items.filter((v) => v.tags.includes(tag));
   }
 
   public async searchRecipes(query: string): Promise<DBRecipe[]> {

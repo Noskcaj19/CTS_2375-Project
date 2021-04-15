@@ -20,7 +20,6 @@ import LoginLink from "../components/LoginLink";
 import { useState } from "react";
 import CreateRecipeDemoWidget from "../components/CreateRecipeDemoWidget";
 import useSWR from "swr";
-import config from "../lib/config";
 import { z } from "zod";
 
 // export const getServerSideProps = withSession(async function ({ req, res }) {
@@ -38,6 +37,7 @@ const Recipe = z.object({
   name: z.string(),
   description: z.string(),
   body: z.string(),
+  tags: z.array(z.string()),
   author_username: z.string(),
   created: z.string().transform((d) => new Date(d)),
 });
@@ -128,6 +128,10 @@ const Home = () => {
     (searchQuery.trim() == "" && !rawRecipes) ||
     (searchQuery.trim() != "" && !searchedRecipes);
 
+  function tagClicked(tag: string) {
+    setSearchQuery(`tag: ${tag}`);
+  }
+
   return (
     <>
       <Head>
@@ -145,6 +149,7 @@ const Home = () => {
               input: classes.inputInput,
             }}
             inputProps={{ "aria-label": "search" }}
+            value={searchQuery}
             onChange={(e) => setSearchQuery(e.currentTarget.value)}
           />
         </div>
@@ -216,7 +221,7 @@ const Home = () => {
           <Grid container spacing={4}>
             {searchedRecipes?.map((recipe) => (
               <Grid item key={recipe.id} xs={12} sm={6} md={4}>
-                <RecipeCard recipe={recipe} />
+                <RecipeCard recipe={recipe} tagClicked={tagClicked} />
               </Grid>
             ))}
           </Grid>
@@ -224,7 +229,7 @@ const Home = () => {
           <Grid container spacing={4}>
             {recipes?.map((recipe) => (
               <Grid item key={recipe.id} xs={12} sm={6} md={4}>
-                <RecipeCard recipe={recipe} />
+                <RecipeCard recipe={recipe} tagClicked={tagClicked} />
               </Grid>
             ))}
           </Grid>

@@ -7,6 +7,7 @@ const NewRecipeArgs = z.object({
   name: z.string(),
   description: z.string(),
   body: z.string(),
+  tags: z.array(z.string()),
   author_username: z.string(),
 });
 // type NewRecipeArgs = z.infer<typeof NewRecipeArgs>;

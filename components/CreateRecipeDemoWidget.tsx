@@ -15,11 +15,14 @@ export default function CreateRecipeDemoWidget({
       name: e.currentTarget.name.value,
       description: e.currentTarget.description.value,
       body: e.currentTarget.body.value,
+      tags: e.currentTarget.tags.value,
       author_username: username,
     };
+    data.tags = data.tags.split(",").map((t) => t.trim().toLowerCase());
     e.currentTarget.name.value = "";
     e.currentTarget.description.value = "";
     e.currentTarget.body.value = "";
+    e.currentTarget.tags.value = "";
     await fetch("/api/recipe/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -33,6 +36,7 @@ export default function CreateRecipeDemoWidget({
       <TextField name="name" label="Recipe Name" />
       <TextField name="description" label="Recipe Description" multiline />
       <TextField name="body" label="Instructions" multiline />
+      <TextField name="tags" label="Tags (comma separated)" />
 
       <Button variant="contained" color="primary" type="submit">
         Submit

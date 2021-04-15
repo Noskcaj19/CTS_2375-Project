@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Chip,
   Collapse,
   Divider,
   IconButton,
@@ -24,6 +25,7 @@ const Recipe = z.object({
   name: z.string(),
   description: z.string(),
   body: z.string(),
+  tags: z.array(z.string()),
   author_username: z.string(),
   created: z.date(),
 });
@@ -55,7 +57,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function RecipeCard({ recipe }: { recipe: Recipe }) {
+export default function RecipeCard({
+  recipe,
+  tagClicked,
+}: {
+  recipe: Recipe;
+  tagClicked: (string) => void;
+}) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -89,6 +97,15 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
           {recipe.description}
         </Typography>
         <Divider />
+        <div style={{ display: "inline-block" }}>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Tags:
+          </Typography>
+          {recipe.tags.map((tag) => (
+            <Chip label={tag} onClick={() => tagClicked(tag)} />
+          ))}
+        </div>
+        <Divider style={{ marginTop: "5px" }} />
         <Typography variant="body2" color="textSecondary" component="p">
           Submitted by {recipe.author_username}
         </Typography>
