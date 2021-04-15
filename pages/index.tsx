@@ -154,7 +154,14 @@ const Home = () => {
           />
         </div>
         <p className={classes.title} />
-        {user?.isLoggedIn ? <LogoutLink /> : <LoginLink />}
+        {user?.isLoggedIn ? (
+          <div>
+            <Typography variant="body1">Logged in as {user?.name}</Typography>
+            <LogoutLink />
+          </div>
+        ) : (
+          <LoginLink />
+        )}
       </div>
 
       <Container component="main" maxWidth="xs">
