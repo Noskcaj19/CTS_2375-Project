@@ -107,6 +107,8 @@ class DB {
       } else {
         throw Error("Invalid password");
       }
+    } else {
+      throw Error("Unknown user");
     }
   }
 
