@@ -18,6 +18,14 @@ export default function CreateRecipeDemoWidget({
       tags: e.currentTarget.tags.value,
       author_username: username,
     };
+    if (
+      data.name.trim() == "" ||
+      data.description.trim() == "" ||
+      data.body.trim() == "" ||
+      data.tags.trim() == ""
+    ) {
+      return;
+    }
     data.tags = data.tags.split(",").map((t) => t.trim().toLowerCase());
     e.currentTarget.name.value = "";
     e.currentTarget.description.value = "";
