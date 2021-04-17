@@ -38,6 +38,7 @@ const Recipe = z.object({
   description: z.string(),
   body: z.string(),
   tags: z.array(z.string()),
+  image: z.optional(z.string()),
   author_username: z.string(),
   created: z.string().transform((d) => new Date(d)),
 });

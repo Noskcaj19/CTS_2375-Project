@@ -2,6 +2,9 @@ import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
+
 import config from "../config";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -13,6 +16,7 @@ export const FromDBToRecipe = z.object({
   body: z.string(),
   tags: z.array(z.string()),
   author_username: z.string(),
+  image: z.optional(z.string()),
   created: z.string().transform((d) => new Date(d)),
 });
 export type DBRecipe = z.infer<typeof FromDBToRecipe>;
@@ -26,7 +30,9 @@ export type DBUser = z.infer<typeof DBUser>;
 
 class DB {
   private static RECIPES_TABLE: string = "cts-recipes";
+  private static IMAGES_BUCKET: string = "s3-cts-images";
   private docClient: DynamoDBDocument;
+  private s3: S3Client;
   private static USERS_TABLE: string = "cts-users";
 
   constructor() {
@@ -34,12 +40,17 @@ class DB {
       region: config.region,
     });
 
+    let cognitoCredentials = fromCognitoIdentityPool({
+      client: cognitoIdentityClient,
+      identityPoolId: config.identityPoolId,
+    });
     const client = new DynamoDBClient({
       region: config.region,
-      credentials: fromCognitoIdentityPool({
-        client: cognitoIdentityClient,
-        identityPoolId: config.identityPoolId,
-      }),
+      credentials: cognitoCredentials,
+    });
+    this.s3 = new S3Client({
+      region: config.region,
+      credentials: cognitoCredentials,
     });
 
     this.docClient = DynamoDBDocument.from(client);
@@ -81,9 +92,27 @@ class DB {
   }
 
   public async addRecipe(recipe: DBRecipe) {
+    let imageKey = undefined;
+    if (recipe.image) {
+      imageKey = uuidv4();
+      try {
+        await this.s3.send(
+          new PutObjectCommand({
+            Bucket: DB.IMAGES_BUCKET,
+            Key: imageKey,
+            Body: Buffer.from(recipe.image, "base64"),
+          })
+        );
+      } catch (err) {
+        console.log("Error", err);
+      }
+    }
+
     await this.docClient.put({
       Item: {
+        id: uuidv4(),
         ...recipe,
+        ...(imageKey && { image: imageKey }),
         created: recipe.created.toISOString(),
         _dummy: "dummy",
       },

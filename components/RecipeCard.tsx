@@ -26,6 +26,7 @@ const Recipe = z.object({
   description: z.string(),
   body: z.string(),
   tags: z.array(z.string()),
+  image: z.optional(z.string()),
   author_username: z.string(),
   created: z.date(),
 });
@@ -87,11 +88,15 @@ export default function RecipeCard({
         title={recipe.name}
         subheader={recipe.created.toDateString()}
       />
-      <CardMedia
-        className={classes.media}
-        image="https://material-ui.com/static/images/cards/paella.jpg"
-        title={recipe.name}
-      />
+      {recipe.image ? (
+        <CardMedia
+          className={classes.media}
+          image={`https://s3-cts-images.s3.amazonaws.com/${recipe.image}`}
+          title={recipe.name}
+        />
+      ) : (
+        <></>
+      )}
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
           {recipe.description}
