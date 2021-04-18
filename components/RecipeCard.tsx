@@ -61,14 +61,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function RecipeCard({
   recipe,
+  favorite,
   tagClicked,
   canDelete,
   deleteClicked,
+  favoriteClicked,
 }: {
   recipe: Recipe;
+  favorite: boolean;
   tagClicked: (string) => void;
   canDelete: boolean;
   deleteClicked: () => void;
+  favoriteClicked: () => void;
 }) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
@@ -122,7 +126,11 @@ export default function RecipeCard({
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
+        <IconButton
+          aria-label="add to favorites"
+          style={{ color: favorite ? "red" : undefined }}
+          onClick={favoriteClicked}
+        >
           <FavoriteIcon />
         </IconButton>
         <IconButton aria-label="share">

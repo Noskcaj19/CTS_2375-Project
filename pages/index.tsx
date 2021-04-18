@@ -27,15 +27,7 @@ import CreateRecipeDemoWidget from "../components/CreateRecipeDemoWidget";
 import useSWR, { mutate } from "swr";
 import { z } from "zod";
 
-// export const getServerSideProps = withSession(async function ({ req, res }) {
-//   const user = req.session.get("user");
-//
-//   let recipes = await db.getRecipes();
-//
-//   return {
-//     props: { recipes, user },
-//   };
-// });
+export const Favorites = z.array(z.string());
 
 const Recipe = z.object({
   id: z.string(),
@@ -127,12 +119,18 @@ const Home = () => {
     `/api/recipe/search?query=${searchQuery}`,
     fetchJson
   );
+  const { data: favoriteResults, error: favoritesError } = useSWR(
+    `/api/user/favorites`,
+    fetchJson
+  );
   const [createRecipeExpanded, setCreateRecipeExpanded] = useState(false);
 
   let recipes = (rawRecipes as any[])?.map((r) => Recipe.parse(r));
   recipes?.sort((a, b) => b.created.getTime() - a.created.getTime());
   let searchedRecipes = (searchResults as any[])?.map((r) => Recipe.parse(r));
   searchedRecipes?.sort((a, b) => b.created.getTime() - a.created.getTime());
+  let favorites = favoriteResults ? Favorites.parse(favoriteResults) : [];
+
   let loading =
     (searchQuery.trim() == "" && !rawRecipes) ||
     (searchQuery.trim() != "" && !searchedRecipes);
@@ -152,6 +150,23 @@ const Home = () => {
       body: JSON.stringify({ id: recipeId }),
     });
     await mutate("/api/recipes");
+  }
+
+  async function favoriteClicked(recipeId: string) {
+    if (favorites?.includes(recipeId)) {
+      await fetch("/api/user/delete-favorite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipe_id: recipeId }),
+      });
+    } else {
+      await fetch("/api/user/new-favorite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipe_id: recipeId }),
+      });
+    }
+    await mutate("/api/user/favorites");
   }
 
   return (
@@ -255,6 +270,8 @@ const Home = () => {
                   tagClicked={tagClicked}
                   canDelete={user?.username == recipe.author_username}
                   deleteClicked={() => deleteClicked(recipe.id)}
+                  favorite={favorites.includes(recipe.id)}
+                  favoriteClicked={() => favoriteClicked(recipe.id)}
                 />
               </Grid>
             ))}
@@ -268,6 +285,8 @@ const Home = () => {
                   tagClicked={tagClicked}
                   canDelete={user?.username == recipe.author_username}
                   deleteClicked={() => deleteClicked(recipe.id)}
+                  favorite={favorites.includes(recipe.id)}
+                  favoriteClicked={() => favoriteClicked(recipe.id)}
                 />
               </Grid>
             ))}

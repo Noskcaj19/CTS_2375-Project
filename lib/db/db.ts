@@ -32,9 +32,16 @@ export const DBUser = z.object({
 });
 export type DBUser = z.infer<typeof DBUser>;
 
+export const DBFavorite = z.object({
+  username: z.string(),
+  recipe_id: z.string(),
+});
+export type DBFavorite = z.infer<typeof DBFavorite>;
+
 class DB {
   private static RECIPES_TABLE: string = "cts-recipes";
   private static IMAGES_BUCKET: string = "s3-cts-images";
+  private static FAVORITES_TABLE: string = "cts-favorites";
   private docClient: DynamoDBDocument;
   private s3: S3Client;
   private static USERS_TABLE: string = "cts-users";
@@ -102,7 +109,7 @@ class DB {
   public async getRecipes(): Promise<DBRecipe[]> {
     let response = await this.docClient.scan({
       TableName: DB.RECIPES_TABLE,
-      Limit: 10,
+      Limit: 100,
     });
 
     return response.Items.map((r) => FromDBToRecipe.parse(r));
@@ -176,6 +183,30 @@ class DB {
         ...user,
         password: hashed_password,
       },
+    });
+  }
+
+  async getFavorites(username: string): Promise<string[]> {
+    let response = await this.docClient.query({
+      TableName: DB.FAVORITES_TABLE,
+      KeyConditionExpression: "username = :username",
+      ExpressionAttributeValues: { ":username": username },
+    });
+
+    return response.Items.map((r) => DBFavorite.parse(r).recipe_id);
+  }
+
+  async addFavorite(username: string, recipeId: string): Promise<void> {
+    await this.docClient.put({
+      TableName: DB.FAVORITES_TABLE,
+      Item: { username, recipe_id: recipeId },
+    });
+  }
+
+  async removeFavorite(username: string, recipeId: string): Promise<void> {
+    await this.docClient.delete({
+      TableName: DB.FAVORITES_TABLE,
+      Key: { username, recipe_id: recipeId },
     });
   }
 
