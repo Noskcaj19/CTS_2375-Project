@@ -82,6 +82,19 @@ class DB {
     );
   }
 
+  public async getRecipe(id: string): Promise<DBRecipe | null> {
+    let response = await this.docClient.get({
+      Key: { id },
+      TableName: DB.RECIPES_TABLE,
+    });
+
+    if (response.Item) {
+      return FromDBToRecipe.parse(response.Item);
+    } else {
+      return null;
+    }
+  }
+
   public async getRecipes(): Promise<DBRecipe[]> {
     let response = await this.docClient.scan({
       TableName: DB.RECIPES_TABLE,
@@ -159,6 +172,18 @@ class DB {
         ...user,
         password: hashed_password,
       },
+    });
+  }
+
+  async deleteRecipe(recipeId: string, requestingUsername: string) {
+    let fullRecipe = await this.getRecipe(recipeId);
+    if (fullRecipe.author_username != requestingUsername) {
+      throw Error("Unauthorized");
+    }
+
+    await this.docClient.delete({
+      TableName: DB.RECIPES_TABLE,
+      Key: { id: recipeId },
     });
   }
 }

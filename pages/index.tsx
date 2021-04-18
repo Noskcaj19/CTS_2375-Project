@@ -6,6 +6,11 @@ import {
   Collapse,
   Container,
   CssBaseline,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   fade,
   Grid,
   InputBase,
@@ -19,7 +24,7 @@ import LogoutLink from "../components/LogoutLink";
 import LoginLink from "../components/LoginLink";
 import { useState } from "react";
 import CreateRecipeDemoWidget from "../components/CreateRecipeDemoWidget";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { z } from "zod";
 
 // export const getServerSideProps = withSession(async function ({ req, res }) {
@@ -111,6 +116,7 @@ const Home = () => {
   const classes = useStyles();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteRecipeOpenFor, setDeleteRecipeOpenFor] = useState("");
 
   const { user } = useUser();
   const { data: rawRecipes, error: recipeError } = useSWR(
@@ -131,6 +137,19 @@ const Home = () => {
 
   function tagClicked(tag: string) {
     setSearchQuery(`tag: ${tag}`);
+  }
+
+  function deleteClicked(recipeId: string) {
+    setDeleteRecipeOpenFor(recipeId);
+  }
+
+  async function deleteRecipe(recipeId: string) {
+    await fetch("/api/recipe/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: recipeId }),
+    });
+    await mutate("/api/recipes");
   }
 
   return (
@@ -229,7 +248,12 @@ const Home = () => {
           <Grid container spacing={4}>
             {searchedRecipes?.map((recipe) => (
               <Grid item key={recipe.id} xs={12} sm={6} md={4}>
-                <RecipeCard recipe={recipe} tagClicked={tagClicked} />
+                <RecipeCard
+                  recipe={recipe}
+                  tagClicked={tagClicked}
+                  canDelete={user?.username == recipe.author_username}
+                  deleteClicked={() => deleteClicked(recipe.id)}
+                />
               </Grid>
             ))}
           </Grid>
@@ -237,12 +261,45 @@ const Home = () => {
           <Grid container spacing={4}>
             {recipes?.map((recipe) => (
               <Grid item key={recipe.id} xs={12} sm={6} md={4}>
-                <RecipeCard recipe={recipe} tagClicked={tagClicked} />
+                <RecipeCard
+                  recipe={recipe}
+                  tagClicked={tagClicked}
+                  canDelete={user?.username == recipe.author_username}
+                  deleteClicked={() => deleteClicked(recipe.id)}
+                />
               </Grid>
             ))}
           </Grid>
         )}
       </Container>
+      <Dialog
+        open={deleteRecipeOpenFor != ""}
+        onClose={() => setDeleteRecipeOpenFor("")}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Delete recipe?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Delete this recipe? This can't be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteRecipeOpenFor("")} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              await deleteRecipe(deleteRecipeOpenFor);
+              setDeleteRecipeOpenFor("");
+            }}
+            color="secondary"
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <p>{JSON.stringify(user)}</p>
     </>

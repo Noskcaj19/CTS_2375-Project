@@ -16,6 +16,7 @@ import clsx from "clsx";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import { red } from "@material-ui/core/colors";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import DeleteIcon from "@material-ui/icons/Delete";
 import ShareIcon from "@material-ui/icons/Share";
 import React from "react";
 import { z } from "zod";
@@ -61,9 +62,13 @@ const useStyles = makeStyles((theme) => ({
 export default function RecipeCard({
   recipe,
   tagClicked,
+  canDelete,
+  deleteClicked,
 }: {
   recipe: Recipe;
   tagClicked: (string) => void;
+  canDelete: boolean;
+  deleteClicked: () => void;
 }) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
@@ -122,6 +127,13 @@ export default function RecipeCard({
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
+        {canDelete ? (
+          <IconButton aria-labe="delete" onClick={deleteClicked}>
+            <DeleteIcon />
+          </IconButton>
+        ) : (
+          <></>
+        )}
         <IconButton
           className={clsx(classes.expand, {
             [classes.expandOpen]: expanded,
