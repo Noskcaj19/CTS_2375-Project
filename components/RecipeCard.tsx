@@ -111,15 +111,21 @@ export default function RecipeCard({
           {recipe.description}
         </Typography>
         <Divider />
-        <div style={{ display: "inline-block" }}>
-          <Typography variant="body2" color="textSecondary" component="p">
-            Tags:
-          </Typography>
-          {recipe.tags.map((tag) => (
-            <Chip key={tag} label={tag} onClick={() => tagClicked(tag)} />
-          ))}
-        </div>
-        <Divider style={{ marginTop: "5px" }} />
+        {recipe.tags.length == 0 ? (
+          <></>
+        ) : (
+          <>
+            <div style={{ display: "inline-block" }}>
+              <Typography variant="body2" color="textSecondary" component="p">
+                Tags:
+              </Typography>
+              {recipe.tags.map((tag) => (
+                <Chip key={tag} label={tag} onClick={() => tagClicked(tag)} />
+              ))}
+            </div>
+            <Divider style={{ marginTop: "5px" }} />
+          </>
+        )}
         <Typography variant="body2" color="textSecondary" component="p">
           Submitted by {recipe.author_username} on{" "}
           {recipe.created.toDateString()}
