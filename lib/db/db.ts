@@ -2,7 +2,11 @@ import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
 import config from "../config";
@@ -179,6 +183,15 @@ class DB {
     let fullRecipe = await this.getRecipe(recipeId);
     if (fullRecipe.author_username != requestingUsername) {
       throw Error("Unauthorized");
+    }
+
+    if (fullRecipe.image) {
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Key: fullRecipe.image,
+          Bucket: DB.IMAGES_BUCKET,
+        })
+      );
     }
 
     await this.docClient.delete({
