@@ -129,8 +129,10 @@ const Home = () => {
   );
   const [createRecipeExpanded, setCreateRecipeExpanded] = useState(false);
 
-  let recipes = (rawRecipes as any)?.map((r) => Recipe.parse(r));
-  let searchedRecipes = (searchResults as any)?.map((r) => Recipe.parse(r));
+  let recipes = (rawRecipes as any[])?.map((r) => Recipe.parse(r));
+  recipes?.sort((a, b) => b.created.getTime() - a.created.getTime());
+  let searchedRecipes = (searchResults as any[])?.map((r) => Recipe.parse(r));
+  searchedRecipes?.sort((a, b) => b.created.getTime() - a.created.getTime());
   let loading =
     (searchQuery.trim() == "" && !rawRecipes) ||
     (searchQuery.trim() != "" && !searchedRecipes);
