@@ -116,11 +116,11 @@ const Home = () => {
     fetchJson
   );
   const { data: searchResults, error: searchError } = useSWR(
-    `/api/recipe/search?query=${searchQuery}`,
+    searchQuery != "" ? `/api/recipe/search?query=${searchQuery}` : null,
     fetchJson
   );
   const { data: favoriteResults, error: favoritesError } = useSWR(
-    `/api/user/favorites`,
+    user?.isLoggedIn ? `/api/user/favorites` : null,
     fetchJson
   );
   const [createRecipeExpanded, setCreateRecipeExpanded] = useState(false);
