@@ -147,8 +147,12 @@ export default function RecipeCard({
         </IconButton>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        {recipe.body.split("\n").map((l) => (
-          <Typography paragraph className={classes.longDescription} key={l}>
+        {recipe.body.split("\n").map((l, i) => (
+          <Typography
+            paragraph
+            className={classes.longDescription}
+            key={recipe.name + l + i}
+          >
             {l}
           </Typography>
         ))}
