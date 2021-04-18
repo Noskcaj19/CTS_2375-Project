@@ -112,7 +112,7 @@ export default function RecipeCard({
             Tags:
           </Typography>
           {recipe.tags.map((tag) => (
-            <Chip label={tag} onClick={() => tagClicked(tag)} />
+            <Chip key={tag} label={tag} onClick={() => tagClicked(tag)} />
           ))}
         </div>
         <Divider style={{ marginTop: "5px" }} />
@@ -128,7 +128,7 @@ export default function RecipeCard({
           <ShareIcon />
         </IconButton>
         {canDelete ? (
-          <IconButton aria-labe="delete" onClick={deleteClicked}>
+          <IconButton aria-label="delete" onClick={deleteClicked}>
             <DeleteIcon />
           </IconButton>
         ) : (
