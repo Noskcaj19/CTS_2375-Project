@@ -88,8 +88,9 @@ class DB {
     //
     // return response.Items.map((r) => DBRecipe.parse(r));
     let items = await this.getRecipes();
+    query = query.toLowerCase()
     return items.filter(
-      (v) => v.name.includes(query) || v.description.includes(query)
+      (v) => v.name.toLowerCase().includes(query) || v.description.toLowerCase().includes(query)
     );
   }
 
