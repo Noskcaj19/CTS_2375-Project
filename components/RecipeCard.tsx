@@ -65,6 +65,7 @@ export default function RecipeCard({
   tagClicked,
   canDelete,
   deleteClicked,
+  canFavorite,
   favoriteClicked,
 }: {
   recipe: Recipe;
@@ -72,6 +73,7 @@ export default function RecipeCard({
   tagClicked: (string) => void;
   canDelete: boolean;
   deleteClicked: () => void;
+  canFavorite: boolean;
   favoriteClicked: () => void;
 }) {
   const classes = useStyles();
@@ -132,13 +134,17 @@ export default function RecipeCard({
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton
-          aria-label="add to favorites"
-          style={{ color: favorite ? "red" : undefined }}
-          onClick={favoriteClicked}
-        >
-          <FavoriteIcon />
-        </IconButton>
+        {canFavorite ? (
+          <IconButton
+            aria-label="add to favorites"
+            style={{ color: favorite ? "red" : undefined }}
+            onClick={favoriteClicked}
+          >
+            <FavoriteIcon />
+          </IconButton>
+        ) : (
+          <></>
+        )}
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>

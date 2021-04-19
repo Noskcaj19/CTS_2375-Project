@@ -271,6 +271,7 @@ const Home = () => {
                   canDelete={user?.username == recipe.author_username}
                   deleteClicked={() => deleteClicked(recipe.id)}
                   favorite={favorites.includes(recipe.id)}
+                  canFavorite={user?.isLoggedIn}
                   favoriteClicked={() => favoriteClicked(recipe.id)}
                 />
               </Grid>
@@ -286,6 +287,7 @@ const Home = () => {
                   canDelete={user?.username == recipe.author_username}
                   deleteClicked={() => deleteClicked(recipe.id)}
                   favorite={favorites.includes(recipe.id)}
+                  canFavorite={user?.isLoggedIn}
                   favoriteClicked={() => favoriteClicked(recipe.id)}
                 />
               </Grid>
